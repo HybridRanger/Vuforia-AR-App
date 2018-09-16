@@ -5,11 +5,11 @@ using UnityEditor;
 
 public class ConvertArrayToMesh : MonoBehaviour {
     public float scl = 1, hScl = 0.1f;
-    ///Color[,] colorValues;
+    
 	// Use this for initialization
 	void Start () {
-        
-        //colorValues = colors;
+        Color[,] colorValues = GameObject.Find("_Manager").GetComponent<ConvertImageToArrray>().colorArray;
+        ArrayToMesh();
     }
 	
 	// Update is called once per frame
@@ -19,7 +19,6 @@ public class ConvertArrayToMesh : MonoBehaviour {
 
     public void ArrayToMesh ()
     {
-        Color[,] colorValues = GameObject.Find("_Manager").GetComponent<ConvertImageToArrray>().colorArray;
         int xLength = colorValues.GetLength(0), yLength = colorValues.GetLength(1);     //get the x and y lengths of the array
         int[] heightValues = new int[xLength*yLength];
         int count = 0;
