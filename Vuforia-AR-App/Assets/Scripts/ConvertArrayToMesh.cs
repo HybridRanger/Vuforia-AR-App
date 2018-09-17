@@ -18,7 +18,7 @@ public class ConvertArrayToMesh : MonoBehaviour {
 		
 	}
 
-    public void ArrayToMesh (Color[,] colorValues)
+    public void ArrayToMesh (Color[,] colorValues, Color[,] overlayArray)
     {
         Debug.Log("ArrayToMesh Run Success");
 
@@ -42,7 +42,8 @@ public class ConvertArrayToMesh : MonoBehaviour {
 
         mesh.vertices = Vertices(heightValues);
         mesh.triangles = Triangles();
-        mesh.colors = Colors(colorValues);
+        mesh.RecalculateNormals();
+        mesh.colors = Colors(colorValues, overlayArray);
     }
 
     Vector3[] Vertices (int[] HeightValues)
@@ -81,7 +82,7 @@ public class ConvertArrayToMesh : MonoBehaviour {
         return array;
     }
 
-    Color[] Colors(Color[,] colorValues)
+    Color[] Colors(Color[,] colorValues, Color[,] overlayArray)
     {
         Color[] colors = new Color[xLength * yLength];
         int count = 0;
@@ -89,7 +90,8 @@ public class ConvertArrayToMesh : MonoBehaviour {
         {
             for (int i = 0; i < xLength; i++)
             {
-                colors[count] = colorValues[i, j];
+                int average = ((int)colorValues[i, j].r + (int)colorValues[i, j].g + (int)colorValues[i, j].b) / 3;
+                colors[count] = overlayArray[0, average-1];
                 Debug.Log(colors[count]);
                 count++;
             }
@@ -97,9 +99,21 @@ public class ConvertArrayToMesh : MonoBehaviour {
         return colors;
     }
 
-    Vector2 UVs()
+    Vector2[] UVs()
     {
 
-        return new Vector2(0,0);
+        return null;
+    }
+
+    Vector2[] Normals()
+    {
+        Vector2[] normals = new Vector2[xLength * yLength];
+
+        for (int i = 0; i < normals.Length; i++)
+        {
+            normals[i] = new Vector2();
+        }
+
+        return null;
     }
 }

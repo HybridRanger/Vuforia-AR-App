@@ -7,15 +7,15 @@ public class ConvertImageToArrray : MonoBehaviour {
 
     // Use this for initialization
 
-    private Color[,] colorArray;
+    private Color[,] colorArray, overlayArray;
     private GameObject terrainMesh;
 
 	void Start () {
-        GL.wireframe = true;
-        colorArray = PNGtoArray("/Heightmaps");
+        colorArray = PNGtoArray("/Heightmaps", "/Test.png");
+        overlayArray = PNGtoArray("/Overlays", "/RGB.png");
         terrainMesh = GameObject.Find("Terrain_Mesh");
         ConvertArrayToMesh atm = (ConvertArrayToMesh)terrainMesh.GetComponent(typeof(ConvertArrayToMesh));
-        atm.ArrayToMesh(colorArray);
+        atm.ArrayToMesh(colorArray, overlayArray);
     }
 	
 	// Update is called once per frame
@@ -23,12 +23,12 @@ public class ConvertImageToArrray : MonoBehaviour {
 		
 	}
 
-    public static Color[,] PNGtoArray(string folder)
+    public static Color[,] PNGtoArray(string folder, string file)
     {
 
         Texture2D tex = null;
         byte[] fileData;
-        string filePath = Application.streamingAssetsPath + folder + "/Crater.png";
+        string filePath = Application.streamingAssetsPath + folder + file;
 
         Debug.Log(filePath);
 
