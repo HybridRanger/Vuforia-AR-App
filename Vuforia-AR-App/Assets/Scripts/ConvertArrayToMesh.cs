@@ -4,116 +4,100 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+[RequireComponent(typeof(MeshFilter))]
 public class ConvertArrayToMesh : MonoBehaviour {
-    public float scl, hScl;
-    public int xLength, yLength;
-    
-	// Use this for initialization
-	void Start () {
+    private int xLength, yLength;
 
-    }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    private Vector3[] vertices;
+    private int[] triangles;
 
-    public void ArrayToMesh (Color[,] colorValues, Color[,] overlayArray)
+    public float sclH;
+
+    public void GenerateMesh(Color[,] heightArray, Color[,] overlayArray)
     {
-        Debug.Log("ArrayToMesh Run Success");
+        xLength = heightArray.GetLength(0);
+        yLength = heightArray.GetLength(1);
 
-        Mesh mesh = GetComponent<MeshFilter>().mesh;
-        mesh.Clear();
-        xLength = colorValues.GetLength(0);
-        yLength = colorValues.GetLength(1);     //get the x and y lengths of the array
-        int[] heightValues = new int[xLength*yLength];
-
-        int count = 0;
-
-        for (int j = 0; j < yLength; j++)
+        vertices = new Vector3[xLength * yLength];
+        for (int i = 0, z = 0; z < yLength; z++)
         {
-            for (int i = 0; i < xLength; i++)
+            for (int x = 0; x < xLength; x++, i++)
             {
-                heightValues[count] = ((int)colorValues[i, j].r + (int)colorValues[i,j].g + (int)colorValues[i,j].b)/3;     //set the height value to the RGB average
-                //Debug.Log(heightValues[count]);
-                count++;
+                vertices[i] = new Vector3(x, heightArray[x, z].r * sclH * 255, z);
+                Debug.Log(vertices[i]);
             }
         }
 
-        mesh.vertices = Vertices(heightValues);
-        mesh.triangles = Triangles();
+        int[] _triangles = new int[(xLength - 1) * (yLength - 1) * 6];
+        int count = 0;
+
+        for (int j = 0; j < yLength - 1; j++)
+        {
+            for (int i = 0; i < xLength - 1; i++)
+            {
+                _triangles[count] = ((j) * yLength) + (i);
+                _triangles[count + 1] = ((j + 1) * yLength) + (i);
+                _triangles[count + 2] = ((j) * yLength) + (i + 1);
+
+                _triangles[count + 3] = ((j + 1) * yLength) + (i);
+                _triangles[count + 4] = ((j + 1) * yLength) + (i + 1);
+                _triangles[count + 5] = ((j) * yLength) + (i + 1);
+                count += 6;
+            }
+        }
+        triangles = _triangles;
+
+        //FlatShading();
+
+        var mesh = new Mesh();
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+
+        mesh.colors = GetRandomColors(vertices.Length, heightArray, overlayArray);
+
         mesh.RecalculateNormals();
-        mesh.colors = Colors(colorValues, overlayArray);
+
+
+        var meshFilter = GetComponent<MeshFilter>();
+        meshFilter.sharedMesh = mesh;
     }
 
-    Vector3[] Vertices (int[] HeightValues)
+    private Color[] GetRandomColors(int vertexCount, Color[,] heightArray, Color[,] overlayArray)
     {
-        Vector3[] vertices = new Vector3[xLength*yLength];
-        int count = 0;
-        for (int j = 0; j < yLength; j++) {
-            for (int i = 0; i < xLength; i++)
-            {
-                vertices[count] = new Vector3(i*scl, HeightValues[count]*hScl, j*scl);
-                count++;
-            }
-        }
 
-        return vertices;
-    }
+        var colors = new Color[vertexCount];
+        var colorIndex = 0;
 
-    int[] Triangles()
-    {
-        List<int> triList = new List<int>();
-        for (int j = 0; j < yLength-1; j++)
+        for (int i = 0, y = 0; y < yLength; y++)
         {
-            for (int i = 0; i < xLength-1; i++)
+            for (int x = 0; x < xLength; x++, i++)
             {
-                triList.Add(((j) * yLength) + (i));
-                triList.Add(((j + 1) * yLength) + (i));
-                triList.Add(((j) * yLength) + (i + 1));
+                if (i % 3 == 0)
+                {
+                    colorIndex = (int)(heightArray[x, y].r * 255);
+                    //Debug.Log(colorIndex);
+                }
 
-                triList.Add(((j + 1) * yLength) + (i));
-                triList.Add(((j + 1) * yLength) + (i + 1));
-                triList.Add(((j) * yLength) + (i + 1));
+                colors[i] = overlayArray[0, colorIndex];
+                Debug.Log(x + ", " + y + " / " + colorIndex + " / " + colors[i] * 255);
             }
         }
 
-        int[] array = triList.ToArray();
-        return array;
-    }
-
-    Color[] Colors(Color[,] colorValues, Color[,] overlayArray)
-    {
-        Color[] colors = new Color[xLength * yLength];
-        int count = 0;
-        for (int j = 0; j < yLength; j++)
-        {
-            for (int i = 0; i < xLength; i++)
-            {
-                int average = ((int)colorValues[i, j].r + (int)colorValues[i, j].g + (int)colorValues[i, j].b) / 3;
-                colors[count] = overlayArray[0, average-1];
-                Debug.Log(colors[count]);
-                count++;
-            }
-        }
         return colors;
     }
 
-    Vector2[] UVs()
+
+    private void FlatShading()
     {
+        Vector3[] flatShadedVertices = new Vector3[triangles.Length];
 
-        return null;
-    }
-
-    Vector2[] Normals()
-    {
-        Vector2[] normals = new Vector2[xLength * yLength];
-
-        for (int i = 0; i < normals.Length; i++)
+        for (int i = 0; i < triangles.Length; i++)
         {
-            normals[i] = new Vector2();
+            flatShadedVertices[i] = vertices[triangles[i]];
+            //Debug.Log(flatShadedVertices[i]);
+            triangles[i] = i;
         }
 
-        return null;
+        vertices = flatShadedVertices;
     }
 }

@@ -7,15 +7,15 @@ public class ConvertImageToArrray : MonoBehaviour {
 
     // Use this for initialization
 
-    private Color[,] colorArray, overlayArray;
+    public Color[,] colorArray, overlayArray;
     private GameObject terrainMesh;
 
 	void Start () {
-        colorArray = PNGtoArray("/Heightmaps", "/Test.png");
+        colorArray = PNGtoArray("/Heightmaps", "/Breca.png");
         overlayArray = PNGtoArray("/Overlays", "/RGB.png");
         terrainMesh = GameObject.Find("Terrain_Mesh");
         ConvertArrayToMesh atm = (ConvertArrayToMesh)terrainMesh.GetComponent(typeof(ConvertArrayToMesh));
-        atm.ArrayToMesh(colorArray, overlayArray);
+        atm.GenerateMesh(colorArray, overlayArray);
     }
 	
 	// Update is called once per frame
@@ -49,7 +49,7 @@ public class ConvertImageToArrray : MonoBehaviour {
         {
             for (int j = 0; j < tex.height; j++)
             {
-                Array[i,j] = (tex.GetPixel(i, j) * 255);
+                Array[i,j] = (tex.GetPixel(i, j));
             }
         }
 
