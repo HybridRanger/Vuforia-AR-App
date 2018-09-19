@@ -7,29 +7,42 @@ public class ConvertImageToArrray : MonoBehaviour {
 
     // Use this for initialization
 
+    public string heightMap, overlay;
     public Color[,] colorArray, overlayArray;
     private GameObject terrainMesh;
+    private ConvertArrayToMesh atm;
 
 	void Start () {
-        colorArray = PNGtoArray("/Heightmaps", "/Breca.png");
-        overlayArray = PNGtoArray("/Overlays", "/RGB.png");
         terrainMesh = GameObject.Find("Terrain_Mesh");
-        ConvertArrayToMesh atm = (ConvertArrayToMesh)terrainMesh.GetComponent(typeof(ConvertArrayToMesh));
+        atm = (ConvertArrayToMesh)terrainMesh.GetComponent(typeof(ConvertArrayToMesh));
         atm.GenerateMesh(colorArray, overlayArray);
     }
 	
 	// Update is called once per frame
 	void Update () {
-		
-	}
+        colorArray = PNGtoArray("/Heightmaps", "/" + heightMap + ".png");
+        overlayArray = PNGtoArray("/Overlays", "/" + overlay + ".png");
+    }
 
-    public static Color[,] PNGtoArray(string folder, string file)
+    public void GenerateArray()
+    {
+        atm.GenerateMesh(colorArray, overlayArray);
+    }
+
+    static Color[,] PNGtoArray(string folder, string file)
     {
 
         Texture2D tex = null;
         byte[] fileData;
-        string filePath = Application.streamingAssetsPath + folder + file;
+        string filePath;
 
+#if UNITY_EDITOR
+        //filePath = Application.streamingAssetsPath + folder + file;
+#endif
+
+#if UNITY_ANDROID
+        filePath = "jar:file://" + Application.dataPath + "!/assets/" + folder + file;
+#endif
         Debug.Log(filePath);
 
         if (File.Exists(filePath))

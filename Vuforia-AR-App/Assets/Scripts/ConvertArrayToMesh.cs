@@ -2,9 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
-[RequireComponent(typeof(MeshFilter))]
 public class ConvertArrayToMesh : MonoBehaviour {
     private int xLength, yLength;
 
@@ -23,7 +21,7 @@ public class ConvertArrayToMesh : MonoBehaviour {
         {
             for (int x = 0; x < xLength; x++, i++)
             {
-                vertices[i] = new Vector3(x, heightArray[x, z].r * sclH * 255, z);
+                vertices[i] = new Vector3(x-(xLength/2), heightArray[x, z].r * sclH * 255, z);
                 Debug.Log(vertices[i]);
             }
         }
@@ -49,7 +47,10 @@ public class ConvertArrayToMesh : MonoBehaviour {
 
         //FlatShading();
 
-        var mesh = new Mesh();
+        MeshFilter mf = GetComponent<MeshFilter>();
+        Mesh mesh = mf.mesh;
+        mesh.Clear();
+
         mesh.vertices = vertices;
         mesh.triangles = triangles;
 
@@ -57,9 +58,7 @@ public class ConvertArrayToMesh : MonoBehaviour {
 
         mesh.RecalculateNormals();
 
-
-        var meshFilter = GetComponent<MeshFilter>();
-        meshFilter.sharedMesh = mesh;
+        mf.sharedMesh = mesh;
     }
 
     private Color[] GetRandomColors(int vertexCount, Color[,] heightArray, Color[,] overlayArray)
