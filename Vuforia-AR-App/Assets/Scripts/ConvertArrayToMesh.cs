@@ -17,11 +17,11 @@ public class ConvertArrayToMesh : MonoBehaviour {
         yLength = heightArray.GetLength(1);
 
         vertices = new Vector3[xLength * yLength];
-        for (int i = 0, z = 0; z < yLength; z++)
+        for (int i = 0, y = 0; y < yLength; y++)
         {
             for (int x = 0; x < xLength; x++, i++)
             {
-                vertices[i] = new Vector3(x-(xLength/2), heightArray[x, z].r * sclH * 255, z);
+                vertices[i] = new Vector3(x-(xLength/2), heightArray[x, y].r * sclH * 255, y - (yLength / 2));
                 Debug.Log(vertices[i]);
             }
         }
