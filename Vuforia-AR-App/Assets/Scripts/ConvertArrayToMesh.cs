@@ -2,16 +2,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ConvertArrayToMesh : MonoBehaviour {
     private int xLength, yLength;
 
     private Vector3[] vertices;
     private int[] triangles;
+    private Color[,] heightArray, overlayArray;
 
-    public float sclH;
+    public Slider slider;
+    public float sclH { get; set; }
 
-    public void GenerateMesh(Color[,] heightArray, Color[,] overlayArray)
+    private void Start()
+    {
+        slider.value = 0.1f;
+    }
+
+    public void UpdateMesh(Color[,] _heightArray, Color[,] _overlayArray)
+    {
+        heightArray = _heightArray;
+        overlayArray = _overlayArray;
+        //GenerateMesh();
+    }
+
+    public void updateSlider()
+    {
+        sclH = slider.value;
+    }
+
+    public void GenerateMesh()
     {
         xLength = heightArray.GetLength(0);
         yLength = heightArray.GetLength(1);

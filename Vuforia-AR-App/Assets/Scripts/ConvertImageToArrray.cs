@@ -7,9 +7,7 @@ using System;
 
 public class ConvertImageToArrray : MonoBehaviour {
 
-    // Use this for initialization
-
-    private string heightMap = "Breca", overlay = "RGB";
+    private string heightMap, overlay;
     public Color[,] colorArray, overlayArray;
     private GameObject terrainMesh;
     private ConvertArrayToMesh atm;
@@ -20,16 +18,24 @@ public class ConvertImageToArrray : MonoBehaviour {
         terrainMesh = GameObject.Find("Terrain_Mesh");
         atm = (ConvertArrayToMesh)terrainMesh.GetComponent(typeof(ConvertArrayToMesh));
     }
-	
-	// Update is called once per frame
-	void Update () {
-        colorArray = PNGtoArray("Heightmaps", heightMap);
-        overlayArray = PNGtoArray("Overlays", overlay);
+
+    public void SetHeightMap (string _heightMap)
+    {
+        heightMap = _heightMap;
+        GenerateArray();
+    }
+
+    public void SetOverlay (string _overlay)
+    {
+        overlay = _overlay;
+        GenerateArray();
     }
 
     public void GenerateArray()
     {
-        atm.GenerateMesh(colorArray, overlayArray);
+        colorArray = PNGtoArray("Heightmaps", heightMap);
+        overlayArray = PNGtoArray("Overlays", overlay);
+        atm.UpdateMesh(colorArray, overlayArray);
     }
 
     Color[,] PNGtoArray(string folder, string file)
